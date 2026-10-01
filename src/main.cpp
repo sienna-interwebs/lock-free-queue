@@ -58,13 +58,17 @@ void run_benchmark(int capacity) {
 
 int main() {
 
-    run_benchmark(16);
-    run_benchmark(64);
-    run_benchmark(256);
-    run_benchmark(1024);
-    run_benchmark(4096);
-    run_benchmark(16384);
 
+    for (int i{}; i < 50; i++){
+
+        std::vector<int> capacities = {16, 64, 256, 1024, 4096, 16384}
+        std::cout << "benchmark run #" << i << "\n";
+
+        for (int j{}; j < capacities.size(); j++) {
+            run_benchmark(j);
+        }
+
+    }
 
 
 }
