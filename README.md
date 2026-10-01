@@ -1,44 +1,53 @@
-# ring buffer
+# ring-buffer
 
-a fixed-capacity, bounded fifo queue implemented in c++.
+a bounded FIFO queue implemented in C++.
 
-## overview
+## current implementation features
 
-this project implements a ring buffer using a fixed-size array and explicit read/write indices.
+* fixed-capacity storage using `std::vector`
+* separate read and write indices
+* FIFO insertion and removal
+* wraparound indexing
+* full and empty detection
+* configurable queue capacity
+* `put()` and `take()` operations return success/failure
+* thread-safe access using `std::mutex`
+* concurrent producer and consumer test
+* FIFO ordering verified under concurrent access
 
-the queue currently supports:
-
-* fifo insertion and removal
-* fixed capacity
-* detection of full and empty states
-* wraparound of the underlying storage
-* basic behavioral tests
-
-## implementation
+## design
 
 the queue maintains:
 
-* a fixed-size array for storage
-* an index for the next element to remove
-* an index for the next element to insert
-* a count of elements currently stored
+* `position` — the next element to remove
+* `put_index` — the next position to insert into
+* `count` — the number of elements currently in the queue
+* `collection` — the underlying storage
 
-when an index reaches the end of the underlying array, it wraps back to the beginning.
+the queue does not physically remove elements from the vector. instead, `position` and `put_index` move around the storage using wraparound indexing.
 
-## build
+when the queue is full, `put()` returns `false`.
 
-compile with:
+when the queue is empty, `take()` returns `false`.
 
-```bash
-g++ src/main.cpp -std=c++17 -Wall -Wextra -o main
-```
+all queue state is protected by a mutex, so a producer and consumer can safely operate on the same queue from different threads.
 
-then run:
+## testing
 
-```bash
-./main
-```
+the current test creates one producer thread and one consumer thread.
 
-## status
+the producer inserts five values:
 
-the current implementation is single-threaded. concurrency and lock-free synchronization are not yet implemented.
+`0, 100, 200, 300, 400`
+
+the consumer removes five values and verifies that they arrive in FIFO order.
+
+failed `put()` and `take()` attempts are retried until the required number of successful operations has completed.
+
+## next steps
+
+* benchmark the mutex-protected queue
+* learn and apply atomic operations
+* design an SPSC queue without a mutex
+* benchmark the SPSC implementation against the mutex-protected version
+* investigate memory ordering and cache effects
