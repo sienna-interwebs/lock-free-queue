@@ -1,102 +1,70 @@
+#include "my_queue.hpp"
 #include<iostream>
 #include<vector>
 #include<mutex>
 #include<thread>
+#include<chrono>
+#include<future>
 
-class Queue {
-    private:
 
-        std::mutex m;
-        std::vector<int> collection;
-        int position;
-        int put_index;
-        int count;
+void producing(Queue& q, std::shared_future<void> start_signal) {
+    start_signal.wait();
 
-    public:
-        Queue(int size) : collection(size) {
-            this->position = 0;
-            this->put_index = 0;
-            this->count = 0;
-        }
-
-        bool take(int& value) {
-            m.lock();
-
-            if (this->count == 0) {
-                m.unlock();
-                return false;
-            }
-            value = this->collection[this->position];
-            this->position = (this->position + 1) % collection.size();
-            this->count--;
-
-            m.unlock();
-
-            return true;
-        }
-
-        bool put(int value) {
-            m.lock();
-
-            if (this->count == collection.size()) {
-                m.unlock();
-                return false;
-            }
-            this->collection[this->put_index] = value;
-            this->put_index = (this->put_index + 1) % collection.size();
-            this->count++;
-
-            m.unlock();
-
-            return true;
-        }
-
-        int len() {
-            int temp;
-            m.lock();
-            temp = count;
-            m.unlock();
-            return temp;
-        }
-};
-
-void producing(Queue& q) {
     int successful = 0;
-    while (successful < 5) {
-        bool result = q.put(successful * 100);
+    while (successful < 10000000) {
+        bool result = q.put(successful * 10);
         if (result) {
             successful++;
         }
     }
 }
 
-void consuming(Queue& q) {
+void consuming(Queue& q, std::shared_future<void> start_signal) {
+    start_signal.wait();
+
     int value;
     int successful = 0;
-    while (successful < 5) {
+    while (successful < 10000000) {
         bool result = q.take(value);
         if (result) {
-            if (value == successful * 100) {
-                std::cout << "passed :) \n";
-            }
-            else {
-                std::cout << "failed :( \n";
-            }
             successful++;
         }
     }
 }
 
-int main() {
+void run_benchmark(int capacity) {
+    Queue q(capacity);
 
-    Queue p(5);
+    std::promise<void> my_promise;
+    auto go_future = my_promise.get_future().share();
 
-    std::thread producer(producing, std::ref(p));
-    std::thread consumer(consuming, std::ref(p));
+    std::thread producer(producing, std::ref(q), go_future);
+    std::thread consumer(consuming, std::ref(q), go_future);
+
+    auto ti = std::chrono::steady_clock::now();
+
+    my_promise.set_value();
 
     producer.join();
     consumer.join();
 
-    return 0;
+    auto tf = std::chrono::steady_clock::now();
+
+    std::chrono::duration<double, std::milli> delta_t = tf - ti;
+
+    std::cout << capacity << " elements: " << delta_t.count() << "ms \n";
+
+}
+
+int main() {
+
+    run_benchmark(16);
+    run_benchmark(64);
+    run_benchmark(256);
+    run_benchmark(1024);
+    run_benchmark(4096);
+    run_benchmark(16384);
+
+
 
 }
