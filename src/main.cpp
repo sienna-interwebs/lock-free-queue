@@ -1,11 +1,12 @@
 #include "my_queue.hpp"
-#include<iostream>
-#include<vector>
-#include<mutex>
-#include<thread>
-#include<chrono>
-#include<future>
-
+#include "stats.hpp"
+#include <iostream>
+#include <vector>
+#include <mutex>
+#include <thread>
+#include <chrono>
+#include <future>
+#include <map>
 
 void producing(Queue& q, std::shared_future<void> start_signal) {
     start_signal.wait();
@@ -32,7 +33,7 @@ void consuming(Queue& q, std::shared_future<void> start_signal) {
     }
 }
 
-void run_benchmark(int capacity) {
+void run_benchmark(int capacity, Stats& collector) {
     Queue q(capacity);
 
     std::promise<void> my_promise;
@@ -52,19 +53,19 @@ void run_benchmark(int capacity) {
 
     std::chrono::duration<double, std::milli> delta_t = tf - ti;
 
-    std::cout << capacity << " elements: " << delta_t.count() << "ms \n";
-
+    collector.add_trial(delta_t.count());
 }
 
 int main() {
+    std::map<int, Stats> benchmark_stats;
+    std::vector<int> capacities = {16, 64, 256, 1024, 4096, 16384};
 
-
-    for (int i{}; i < 50; i++){
-        std::vector<int> capacities = {16, 64, 256, 1024, 4096, 16384}
-        std::cout << "benchmark run #" << i << "\n";
-
-        for (int j{}; j < capacities.size(); j++) {
-            run_benchmark(capacties[j]);
+    for (int i{}; i < static_cast<int>(capacities.size()); i++){
+        std:: cout << "benchmark run for " << capacities[i] << " elements: \n";
+        for (int j{}; j < 50 ; j++) {
+            run_benchmark(capacities[i], benchmark_stats[capacities[i]]);
         }
+        benchmark_stats[capacities[i]].print(capacities[i]);
     }
+
 }
