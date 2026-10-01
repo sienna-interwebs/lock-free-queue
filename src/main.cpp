@@ -60,15 +60,11 @@ int main() {
 
 
     for (int i{}; i < 50; i++){
-
         std::vector<int> capacities = {16, 64, 256, 1024, 4096, 16384}
         std::cout << "benchmark run #" << i << "\n";
 
         for (int j{}; j < capacities.size(); j++) {
-            run_benchmark(j);
+            run_benchmark(capacties[j]);
         }
-
     }
-
-
 }
