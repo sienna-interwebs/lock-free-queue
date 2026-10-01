@@ -19,10 +19,10 @@ a bounded FIFO queue implemented in C++.
 
 the queue maintains:
 
-* `position` — the next element to remove
-* `put_index` — the next position to insert into
-* `count` — the number of elements currently in the queue
-* `collection` — the underlying storage
+* `position`; the next element to remove
+* `put_index`; the next position to insert into
+* `count`; the number of elements currently in the queue
+* `collection`; the underlying storage
 
 the queue does not physically remove elements from the vector. instead, `position` and `put_index` move around the storage using wraparound indexing.
 
