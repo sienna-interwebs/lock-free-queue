@@ -98,6 +98,9 @@ void Stats::print(int capacity) {
     std::cout << "mean: " << mean() << "\n";
     std::cout << "median: " << percentile(50.0) << "\n";
     std::cout << "stdev: " << std_dev() << "\n";
+    std::cout << "p25: " << percentile(25.0) << "\n";
+    std::cout << "p75: " << percentile(75.0) << "\n";
+    std::cout << "p90: " << percentile(90.0) << "\n";
     std::cout << "p95: " << percentile(95.0) << "\n";
     std::cout << "p99: " << percentile(99.0) << "\n";
     std::cout << "iqr: " << iqr() << "\n";
