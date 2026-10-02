@@ -78,21 +78,21 @@ the analysis currently produces three visualizations.
 
 ### average runtime
 
-![average runtime]`capacity_ms_mutex_spsc.png`
+![average runtime](results/plots/capacity_ms_mutex_spsc.png)
 
 mean runtime as a function of queue capacity; capacity is shown on a log2 axis.
 
 ### percentile distributions
 
-![percentile distributions]`capacity_percentile_distribution_mutex_spsc.png`
+![percentile distributions](results/plots/capacity_percentile_distribution_mutex_spsc.png)
 
 runtime across several percentiles for each queue capacity; this shows the runtime distribution and upper tail.
 
 ### performance surface
 
-![performance surface]`mutex_spsc_surface.png`
+![performance surface](results/plots/mutex_spsc_surface.png)
 
-a 3d visualization of percentile, capacity, and runtime.
+a 3d visualization of percentile, capacity, and runtime. for funsies :3
 
 capacity is represented on a log2 scale; the surface between measured points is interpolated and does not represent directly benchmarked configurations.
 
