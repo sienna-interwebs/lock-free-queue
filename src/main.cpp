@@ -1,6 +1,6 @@
-#include "benchmark.hpp"
-#include "my_queue.hpp"
-#include "stats.hpp"
+#include "queues/mutex_spsc/queue.hpp"
+#include "benchmark/benchmark.hpp"
+#include "stats/stats.hpp"
 #include <iostream>
 #include <vector>
 #include <mutex>

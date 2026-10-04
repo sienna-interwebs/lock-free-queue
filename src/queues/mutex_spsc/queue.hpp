@@ -1,5 +1,5 @@
-#ifndef MY_QUEUE_HPP
-#define MY_QUEUE_HPP
+#ifndef MUTEX_SPSC_QUEUE_HPP
+#define MUTEX_SPSC_QUEUE_HPP
 
 #include<iostream>
 #include<vector>
