@@ -6,25 +6,24 @@
 class Stats {
 private:
     std::vector<double> trials;
-    bool is_sorted;
 
-    void ensure_sorted();
+    void prepare_data();
 
 public:
-    Stats() {
-        is_sorted = false;
-    }
+    Stats() = default;
 
-    void add_trial(double duration_ms);
+    void add_trial(double duration);
+
     int count() const;
-    double min();
-    double max();
+
+    double min() const;
+    double max() const;
     double mean() const;
     double variance() const;
     double std_dev() const;
-    double percentile(double pct);
-    double iqr();
-    int count_outliers();
+    double percentile(double pct) const;
+    double iqr() const;
+    int count_outliers() const;
 
     void print(int capacity);
 };

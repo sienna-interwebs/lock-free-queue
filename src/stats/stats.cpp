@@ -3,33 +3,26 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
-void Stats::ensure_sorted() {
-    if (!is_sorted && !trials.empty()) {
-        std::sort(trials.begin(), trials.end());
-        is_sorted = true;
-    }
-}
-
-void Stats::add_trial(double duration_ms) {
-    trials.push_back(duration_ms);
-    is_sorted = false;
+void Stats::add_trial(double duration_ns) {
+    trials.push_back(duration_ns);
 }
 
 int Stats::count() const {
-    return trials.size();
+    return static_cast<int>(trials.size());
 }
 
-double Stats::min() {
-    if (trials.empty()) return 0.0;
-    ensure_sorted();
-    return trials.front();
+void Stats::prepare_data() {
+    std::sort(trials.begin(), trials.end());
 }
 
-double Stats::max() {
-    if (trials.empty()) return 0.0;
-    ensure_sorted();
-    return trials.back();
+double Stats::min() const {
+    return trials.empty() ? 0.0 : trials.front();
+}
+
+double Stats::max() const {
+    return trials.empty() ? 0.0 : trials.back();
 }
 
 double Stats::mean() const {
@@ -52,24 +45,20 @@ double Stats::std_dev() const {
     return std::sqrt(variance());
 }
 
-double Stats::percentile(double pct) {
+double Stats::percentile(double pct) const {
     if (trials.empty()) return 0.0;
-    if (pct < 0.0) pct = 0.0;
-    if (pct > 100.0) pct = 100.0;
-
-    ensure_sorted();
+    pct = std::clamp(pct, 0.0, 100.0);
     int idx = static_cast<int>((pct / 100.0) * (trials.size() - 1));
     return trials[idx];
 }
 
-double Stats::iqr() {
+double Stats::iqr() const {
     if (trials.size() < 4) return 0.0;
     return percentile(75.0) - percentile(25.0);
 }
 
-int Stats::count_outliers() {
+int Stats::count_outliers() const {
     if (trials.size() < 4) return 0;
-    ensure_sorted();
 
     double q1 = percentile(25.0);
     double q3 = percentile(75.0);
@@ -88,21 +77,17 @@ int Stats::count_outliers() {
 }
 
 void Stats::print(int capacity) {
-    if (trials.empty()) {
-        return;
-    }
+    if (trials.empty()) return;
 
-    std::cout << "capacity: " << capacity << "\n";
-    std::cout << "minimum: " << min() << "\n";
-    std::cout << "maximum: " << max() << "\n";
-    std::cout << "mean: " << mean() << "\n";
-    std::cout << "median: " << percentile(50.0) << "\n";
-    std::cout << "stdev: " << std_dev() << "\n";
-    std::cout << "p25: " << percentile(25.0) << "\n";
-    std::cout << "p75: " << percentile(75.0) << "\n";
-    std::cout << "p90: " << percentile(90.0) << "\n";
-    std::cout << "p95: " << percentile(95.0) << "\n";
-    std::cout << "p99: " << percentile(99.0) << "\n";
-    std::cout << "iqr: " << iqr() << "\n";
-    std::cout << "outliers: " << count_outliers() << "\n\n";
+    prepare_data();
+
+    std::cout << std::fixed << std::setprecision(3);
+    std::cout << "min: " << min() << "\n";
+    std::cout << "max: " << max() << "\n";
+    std::cout << "mean:     " << mean() << "\n";
+    std::cout << "median:   " << percentile(50.0) << "\n";
+    std::cout << "stdev:    " << std_dev() << "\n";
+    std::cout << "p25:      " << percentile(25.0) << " ; p75: " << percentile(75.0) << "\n";
+    std::cout << "p90:      " << percentile(90.0) << " ; p95: " << percentile(95.0) << " ; p99: " << percentile(99.0) << "\n";
+    std::cout << "IQR:      " << iqr() << " ; outliers: " << count_outliers() << "\n";
 }

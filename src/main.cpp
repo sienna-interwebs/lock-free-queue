@@ -1,42 +1,19 @@
 #include "queues/atomic_spsc/queue.hpp"
+#include "benchmark/benchmark.hpp"
+#include "stats/stats.hpp"
 #include<iostream>
 #include<thread>
 
-void producing(Queue& q) {
-    int successful = 0;
-    while (successful < 100000000) {
-        bool result = q.put(successful * 100);
-        if (result) {
-            successful++;
-        }
-    }
-}
-
-void consuming(Queue& q) {
-    int value;
-    int successful = 0;
-    while (successful < 100000000) {
-        bool result = q.take(value);
-        if (result) {
-            if (value != successful * 100) {
-                std::cout << "failed :(\n";
-            }
-            successful++;
-        }
-    }
-}
-
 int main() {
+    std::map<int, Stats> benchmark_stats;
+    std::vector<int> capacities = {16, 64, 256, 1024, 4096, 16384, 65536, 262144};
 
-    Queue q(16384);
-
-    std::thread producer(producing, std::ref(q));
-    std::thread consumer(consuming, std::ref(q));
-
-    producer.join();
-    consumer.join();
-
-    return 0;
-
+    for (int i{}; i < static_cast<int>(capacities.size()); i++){
+        std:: cout << "benchmark run for " << capacities[i] << " elements: \n";
+        for (int j{}; j < 50 ; j++) {
+            run_benchmark(capacities[i], benchmark_stats[capacities[i]]);
+        }
+        benchmark_stats[capacities[i]].print(capacities[i]);
+    }
 
 }

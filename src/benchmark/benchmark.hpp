@@ -1,8 +1,8 @@
 #ifndef BENCHMARK_HPP
 #define BENCHMARK_HPP
 
-#include "queues/mutex_spsc/queue.hpp"
-#include "stats.hpp"
+#include "queues/atomic_spsc/queue.hpp"
+#include "stats/stats.hpp"
 #include <iostream>
 #include <vector>
 #include <mutex>
