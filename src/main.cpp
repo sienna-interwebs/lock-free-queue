@@ -1,24 +1,35 @@
-#include "queues/mutex_spsc/queue.hpp"
-#include "benchmark/benchmark.hpp"
-#include "stats/stats.hpp"
-#include <iostream>
-#include <vector>
-#include <mutex>
-#include <thread>
-#include <chrono>
-#include <future>
-#include <map>
+#include "queues/atomic_spsc/queue.hpp"
+#include<iostream>
 
 int main() {
-    std::map<int, Stats> benchmark_stats;
-    std::vector<int> capacities = {16, 64, 256, 1024, 4096, 16384};
 
-    for (int i{}; i < static_cast<int>(capacities.size()); i++){
-        std:: cout << "benchmark run for " << capacities[i] << " elements: \n";
-        for (int j{}; j < 50 ; j++) {
-            run_benchmark(capacities[i], benchmark_stats[capacities[i]]);
-        }
-        benchmark_stats[capacities[i]].print(capacities[i]);
+    Queue q(5);
+
+    if (q.put(42)) {
+        std::cout << "test passed, 42 added :) \n";
+    } else {
+        std::cout << "test failed, 42 not added :( \n";
     }
 
+    int retrieved_value{};
+    if (q.take(retrieved_value)) {
+        std::cout << "test passed, value retrieved :) \n";
+
+        if (retrieved_value == 42) {
+            std::cout << "test passed, value matches! \n";
+        } else {
+            std::cout << "test failed, wrong value :( \n";
+        }
+    } else {
+        std::cout << "test failed, value not pulled out :( \n";
+    }
+
+    int empty_check{};
+    if (q.take(empty_check)) {
+        std::cout << "test failed :( took a value out while empty \n";
+    } else {
+        std::cout << "test passed :) didn't take a value out while empty \n";
+    }
+
+    return 0;
 }
