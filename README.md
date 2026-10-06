@@ -1,102 +1,44 @@
 # ring-buffer
 
-a bounded fifo ring buffer in c++; currently implemented as a mutex-protected spsc queue.
+a bounded fifo ring buffer implemented in c++.
 
-the repo includes the queue implementation, a custom benchmark and statistics system, and python-based benchmark analysis :)
+the project currently contains two spsc implementations:
 
-## current implementation
+* mutex-protected spsc
+* atomic spsc using acquire/release and relaxed memory ordering
 
-the queue provides:
-
-* configurable capacity
-* bounded fifo semantics
-* circular indexing
-* separate read and write indices
-* explicit full and empty handling
-* `put()` and `take()` operations
-* `std::vector` storage
-* `std::mutex` synchronization
-
-the queue maintains:
-
-* `position` ; the next element to remove
-* `put_index` ; the next position to insert into
-* `count` ; the number of elements currently in the queue
-* `collection` ; the underlying storage
-
-elements are not physically removed from the vector; the read and write indices advance through the storage using wraparound indexing.
-
-when the queue is full, `put()` returns `false`.
-
-when the queue is empty, `take()` returns `false`.
+the queue uses circular indexing, configurable capacity, and `o(1)` enqueue/dequeue operations.
 
 ## concurrency
 
-the current queue uses one producer and one consumer.
+the atomic spsc implementation gives the producer exclusive ownership of `put_index` and the consumer exclusive ownership of `position`.
 
-queue state is protected by a mutex; the producer and consumer can operate on the same queue without data races.
+acquire/release synchronization publishes completed writes and reads between the producer and consumer without a mutex.
 
-the mutex-protected implementation serves as the baseline for the lock-free queue implementations that follow.
+concurrent correctness was validated with 100 million successful enqueues and 100 million successful dequeues.
 
 ## benchmarking
 
-the repository includes a custom benchmarking and statistics system.
+a custom benchmarking and statistics framework collects repeated runtime measurements.
 
-the current benchmark uses:
+statistics include:
 
-* 6 queue capacities
-* 50 trials per capacity
-* 10 million successful enqueues per trial
-* 10 million successful dequeues per trial
-* one producer thread
-* one consumer thread
-
-this produces 300 benchmark trials and 6 billion successful queue operations across the complete experiment.
-
-the statistics system records:
-
-* minimum
-* maximum
-* mean
-* median
+* minimum and maximum
+* mean and median
 * standard deviation
-* p25
-* p75
-* p90
-* p95
-* p99
-* interquartile range
+* p25, p75, p90, p95, p99
+* iqr
 * outlier count
 
-worker threads wait on a start signal before the timed workload begins; thread creation is excluded from the measured interval.
+the atomic spsc implementation was benchmarked across capacities from 16 to 262,144 elements, with 1 billion successful enqueues and 1 billion successful dequeues per trial.
 
-## benchmark analysis
+benchmark results are analyzed with python and matplotlib.
 
-benchmark results are exported to csv and analyzed with python.
+## results
 
-the analysis currently produces three visualizations.
+the current atomic spsc benchmark shows little change in mean runtime across the tested capacities.
 
-### average runtime
-
-![average runtime](results/plots/capacity_ms_mutex_spsc.png)
-
-mean runtime as a function of queue capacity; capacity is shown on a log2 axis.
-
-### percentile distributions
-
-![percentile distributions](results/plots/capacity_percentile_distribution_mutex_spsc.png)
-
-runtime across several percentiles for each queue capacity; this shows the runtime distribution and upper tail.
-
-### performance surface
-
-![performance surface](results/plots/mutex_spsc_surface.png)
-
-a 3d visualization of percentile, capacity, and runtime. for funsies :3
-
-capacity is represented on a log2 scale; the surface between measured points is interpolated and does not represent directly benchmarked configurations.
-
-the results describe this queue under this workload and environment; they are not a general performance model ! 
+the more noticeable differences appear in variability and tail behavior. capacity 4096 produced the lowest standard deviation and p95/p99 values in the current experiment, while capacity 16 showed the highest variability and p95/p99 values.
 
 ## project structure
 
@@ -104,62 +46,28 @@ the results describe this queue under this workload and environment; they are no
 ring-buffer/
 ├── README.md
 ├── .gitignore
-│
 ├── src/
-│   ├── queue/
-│   │   ├── my_queue.hpp
-│   │   └── my_queue.cpp
-│   │
+│   ├── queues/
+│   │   ├── mutex_spsc/
+│   │   │   ├── queue.hpp
+│   │   │   └── queue.cpp
+│   │   └── atomic_spsc/
+│   │       ├── queue.hpp
+│   │       └── queue.cpp
 │   ├── benchmark/
 │   │   ├── benchmark.hpp
 │   │   └── benchmark.cpp
-│   │
 │   ├── stats/
 │   │   ├── stats.hpp
 │   │   └── stats.cpp
-│   │
 │   └── main.cpp
-│
 ├── analysis/
 │   └── pyplots.py
-│
 └── results/
     ├── benchmark_stats.csv
     └── plots/
-        ├── capacity_ms_mutex_spsc.png
-        ├── capacity_percentile_distribution_mutex_spsc.png
-        └── mutex_spsc_surface.png
 ```
-
-source code, analysis code, and benchmark results are kept separate for ease of access.
 
 ## next
 
-the queue is moving from mutex synchronization toward lock-free concurrency.
-
-```text
-mutex-protected spsc
-        |
-        v
-lock-free spsc
-        |
-        v
-mpsc
-        |
-        v
-mpmc
-        |
-        v
-comparative benchmarking
-```
-
-planned work:
-
-* atomic synchronization
-* c++ memory ordering
-* lock-free spsc
-* cache and cache-coherence effects
-* mpsc
-* mpmc
-* comparative benchmarks against established queue implementations
-* cpu and system-level performance analysis
+extend the queue toward mpsc and mpmc designs; benchmark synchronization and memory-layout changes against the existing spsc implementations.
