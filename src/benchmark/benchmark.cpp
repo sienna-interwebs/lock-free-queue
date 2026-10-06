@@ -13,7 +13,7 @@ void producing(Queue& q, std::shared_future<void> start_signal) {
     start_signal.wait();
 
     int successful = 0;
-    while (successful < 1000000000) {
+    while (successful < 100000000) {
         bool result = q.put(successful);
         if (result) {
             successful++;
@@ -26,7 +26,7 @@ void consuming(Queue& q, std::shared_future<void> start_signal) {
 
     int value;
     int successful = 0;
-    while (successful < 1000000000) {
+    while (successful < 100000000) {
         bool result = q.take(value);
         if (result) {
             successful++;
