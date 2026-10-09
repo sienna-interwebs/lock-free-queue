@@ -9,12 +9,13 @@ class Queue {
     private:
 
         std::vector<int> collection;
-        std::atomic<int> position;
-        std::atomic<int> put_index;
+        alignas(128) std::atomic<int> position;
+        alignas(128) std::atomic<int> put_index;
+        int mask;
 
     public:
 
-        Queue(int size);
+        Queue(int p2exp);
 
         bool take(int& value);
 

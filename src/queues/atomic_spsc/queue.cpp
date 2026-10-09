@@ -4,10 +4,12 @@
 #include<atomic>
 
 
-Queue::Queue(int size) : collection(size) {
+Queue::Queue(int p2exp) : collection(1LL << p2exp) {
 
         this->position.store(0, std::memory_order_relaxed);
         this->put_index.store(0, std::memory_order_relaxed);
+        this->mask = (1LL << p2exp) - 1;
+
 }
 
 bool Queue::take(int& value) {
@@ -16,7 +18,7 @@ bool Queue::take(int& value) {
         if (this->put_index.load(std::memory_order_acquire) - snapshot == 0) {
             return false;
         }
-        value = this->collection[snapshot % static_cast<int>(collection.size())];
+        value = this->collection[snapshot & this->mask];
         this->position.fetch_add(1, std::memory_order_release);
 
         return true;
@@ -28,7 +30,7 @@ bool Queue::put(int value) {
         if (snapshot - this->position.load(std::memory_order_acquire) >= static_cast<int>(this->collection.size())) {
             return false;
         }
-        this->collection[snapshot % static_cast<int>(collection.size())] = value;
+        this->collection[snapshot & this->mask] = value;
         this->put_index.fetch_add(1, std::memory_order_release);
 
         return true;
