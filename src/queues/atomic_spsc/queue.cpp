@@ -14,7 +14,7 @@ Queue::Queue(int p2exp) : collection(1LL << p2exp) {
 
 bool Queue::take(int& value) {
 
-        int snapshot = this->position.load(std::memory_order_relaxed);
+        size_t snapshot = this->position.load(std::memory_order_relaxed);
         if (this->put_index.load(std::memory_order_acquire) - snapshot == 0) {
             return false;
         }
@@ -26,8 +26,8 @@ bool Queue::take(int& value) {
 
 bool Queue::put(int value) {
 
-        int snapshot = this->put_index.load(std::memory_order_relaxed);
-        if (snapshot - this->position.load(std::memory_order_acquire) >= static_cast<int>(this->collection.size())) {
+        size_t snapshot = this->put_index.load(std::memory_order_relaxed);
+        if (snapshot - this->position.load(std::memory_order_acquire) >= static_cast<size_t>(this->collection.size())) {
             return false;
         }
         this->collection[snapshot & this->mask] = value;

@@ -9,8 +9,8 @@ class Queue {
     private:
 
         std::vector<int> collection;
-        alignas(128) std::atomic<int> position;
-        alignas(128) std::atomic<int> put_index;
+        alignas(128) std::atomic<size_t> position;
+        alignas(128) std::atomic<size_t> put_index;
         int mask;
 
     public:
