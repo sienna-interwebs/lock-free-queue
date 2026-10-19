@@ -16,7 +16,7 @@ add_executable(queue_bench
 
 add_executable(mpsc_race
     src/experiments/mpsc_race.cpp
-    src/queues/atomic_spsc/queue.cpp
+    src/queues/mpsc_queue/queue.cpp
 )
 
 find_package(Threads REQUIRED)

@@ -1,9 +1,9 @@
-#include "queues/atomic_spsc/queue.hpp"
+#include "queues/mpsc_queue/queue.hpp"
 #include <iostream>
 #include<thread>
 #include<vector>
 
-void producing(Queue& q, int start) {
+void producing(MpscQueue& q, int start) {
 
     int successful = 0;
     while (successful < 1000000) {
@@ -18,7 +18,7 @@ void producing(Queue& q, int start) {
 
 int main() {
 
-    Queue q(21);
+    MpscQueue q(21);
 
     std::thread producer1(producing, std::ref(q), 1);
     std::thread producer2(producing, std::ref(q), 1000001);
@@ -34,6 +34,7 @@ int main() {
 
     int lost = 0;
     int remained = 0;
+    int duplicated = 0;
 
     while (q.take(value)){
 
@@ -44,7 +45,7 @@ int main() {
 
     std::cout << counter << "\n";
 
-    for (int i{}; i < 2000000; i++) {
+    for (int i{1}; i < 2000001; i++) {
 
         if (seen[i] == 0) {
             lost++;
@@ -52,12 +53,15 @@ int main() {
         else {
             remained++;
         }
+        if (seen[i] > 1) {
+            duplicated++;
+        }
 
     }
 
     std::cout << "items available: " << remained << "\n";
     std::cout << "items lost: " << lost << "\n";
-
-
+    std::cout << "items duplicated: " << duplicated << "\n";
+    std::cout << seen[0] << "\n";
 
 }
