@@ -14,6 +14,14 @@ add_executable(queue_bench
     src/queues/atomic_spsc/queue.cpp
 )
 
+add_executable(mpsc_race
+    src/experiments/mpsc_race.cpp
+    src/queues/atomic_spsc/queue.cpp
+)
+
+find_package(Threads REQUIRED)
+target_link_libraries(mpsc_race PRIVATE Threads::Threads)
+
 set_property(TARGET main PROPERTY CXX_STANDARD 17)
 set_property(TARGET main PROPERTY CXX_STANDARD_REQUIRED ON)
 set_property(TARGET main PROPERTY CXX_EXTENSIONS OFF)
@@ -27,3 +35,7 @@ target_include_directories(main PRIVATE src)
 target_include_directories(queue_bench PRIVATE src)
 
 target_link_libraries(queue_bench PRIVATE benchmark::benchmark)
+
+target_include_directories(mpsc_race PRIVATE src)
+target_compile_features(mpsc_race PRIVATE cxx_std_17)
+target_compile_options(mpsc_race PRIVATE -Wall -Wextra)
