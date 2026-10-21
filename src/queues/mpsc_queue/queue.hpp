@@ -8,7 +8,12 @@
 class MpscQueue {
     private:
 
-        std::vector<int> collection;
+        struct Slot {
+            std::atomic<bool> ready{false};
+            int value;
+        };
+
+        std::vector<Slot> collection;
         alignas(128) std::atomic<size_t> position;
         alignas(128) std::atomic<size_t> put_index;
         int mask;
