@@ -15,16 +15,22 @@ void producing(MpscQueue& q, int start) {
     }
 }
 
+void consuming(MpscQueue& q, std::vector<int>& seen) {
+
+    int value;
+    int successful = 0;
+    while (successful < 2000000) {
+        bool result = q.take(value);
+        if (result) {
+            seen[value]++;
+            successful++;
+
+        }
+    }
+}
+
 
 int main() {
-
-    MpscQueue q(21);
-
-    std::thread producer1(producing, std::ref(q), 1);
-    std::thread producer2(producing, std::ref(q), 1000001);
-
-    producer1.join();
-    producer2.join();
 
     std::vector<int> seen(2000001, 0);
 
@@ -35,6 +41,16 @@ int main() {
     int lost = 0;
     int remained = 0;
     int duplicated = 0;
+
+    MpscQueue q(21);
+
+    std::thread producer1(producing, std::ref(q), 1);
+    std::thread producer2(producing, std::ref(q), 1000001);
+    std::thread consumer1(consuming, std::ref(q), std::ref(seen));
+
+    producer1.join();
+    producer2.join();
+    consumer1.join();
 
     while (q.take(value)){
 
