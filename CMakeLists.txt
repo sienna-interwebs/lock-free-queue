@@ -19,6 +19,12 @@ add_executable(mpsc_race
     src/queues/mpsc_queue/queue.cpp
 )
 
+
+add_executable(haha
+    src/experiments/shits_and_giggles.cpp
+    src/queues/mpsc_queue/queue.cpp
+)
+
 add_executable(spsc_race
     src/experiments/spsc_race.cpp
     src/queues/atomic_spsc/queue.cpp
@@ -47,6 +53,10 @@ target_link_libraries(queue_bench PRIVATE benchmark::benchmark)
 target_include_directories(mpsc_race PRIVATE src)
 target_compile_features(mpsc_race PRIVATE cxx_std_17)
 target_compile_options(mpsc_race PRIVATE -Wall -Wextra)
+
+target_include_directories(spsc_race PRIVATE src)
+target_compile_features(spsc_race PRIVATE cxx_std_17)
+target_compile_options(spsc_race PRIVATE -Wall -Wextra)
 
 target_include_directories(spsc_race PRIVATE src)
 target_compile_features(spsc_race PRIVATE cxx_std_17)
