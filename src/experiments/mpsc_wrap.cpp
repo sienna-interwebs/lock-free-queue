@@ -42,27 +42,14 @@ int main() {
     int remained = 0;
     int duplicated = 0;
 
-    MpscQueue q(21);
+    MpscQueue q(2);
 
     std::thread producer1(producing, std::ref(q), 1);
-    std::thread producer2(producing, std::ref(q), 1);
-    std::thread producer3(producing, std::ref(q), 1);
-    std::thread producer4(producing, std::ref(q), 1);
-    std::thread producer5(producing, std::ref(q), 1);
-    std::thread producer6(producing, std::ref(q), 1);
-    std::thread producer7(producing, std::ref(q), 1);
-    std::thread producer8(producing, std::ref(q), 1);
-
+    std::thread producer2(producing, std::ref(q), 1000001);
     std::thread consumer1(consuming, std::ref(q), std::ref(seen));
 
     producer1.join();
     producer2.join();
-    producer3.join();
-    producer4.join();
-    producer5.join();
-    producer6.join();
-    producer7.join();
-    producer8.join();
     consumer1.join();
 
     while (q.take(value)){

@@ -19,7 +19,7 @@ bool MpscQueue::take(int& value) {
             return false;
         }
         value = this->collection[snapshot & this->mask].value;
-        this->collection[snapshot & this->mask].ready = true;
+        this->collection[snapshot & this->mask].ready = false;
         this->position.fetch_add(1, std::memory_order_release);
 
         return true;
