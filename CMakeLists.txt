@@ -13,6 +13,7 @@ add_executable(main
 add_executable(queue_bench
     src/benchmark/queue_bench.cpp
     src/queues/atomic_spsc/queue.cpp
+    src/queues/mpsc_queue/queue.cpp
 )
 
 add_executable(mpsc_race
