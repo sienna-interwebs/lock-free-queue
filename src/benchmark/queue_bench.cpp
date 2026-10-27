@@ -1,8 +1,8 @@
 #include <benchmark/benchmark.h>
-#include "queues/atomic_spsc/queue.hpp"
+#include "queues/mpsc_queue/queue.hpp"
 
 static void round_trip_checked_benchmark(benchmark::State& state) {
-    Queue q(10);
+    MpscQueue q(10);
 
     int value = 13;
 
@@ -36,7 +36,7 @@ static void round_trip_checked_benchmark(benchmark::State& state) {
 
 static void round_trip_unchecked_benchmark(benchmark::State& state) {
 
-    Queue q(10);
+    MpscQueue q(10);
 
     int value = 13;
 
